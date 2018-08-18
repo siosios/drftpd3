@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="org.drftpd.commands.find.imdb" version="3.2.0">
+<plugin id="org.drftpd.commands.find.imdb" version="3.3.0">
 	<doc>
 		<doc-text>This plugin provides IMDB metadata query options for find.</doc-text>
 	</doc>
@@ -24,9 +24,9 @@
 		<parameter id="ClassName" value="org.drftpd.commands.find.imdb.IMDBOption"/>
 		<parameter id="OptionName" value="IMDBDirector"/>
 	</extension>
-	<extension plugin-id="org.drftpd.commands.find" point-id="Option" id="IMDBGenreOption">
+	<extension plugin-id="org.drftpd.commands.find" point-id="Option" id="IMDBGenresOption">
 		<parameter id="ClassName" value="org.drftpd.commands.find.imdb.IMDBOption"/>
-		<parameter id="OptionName" value="IMDBGenre"/>
+		<parameter id="OptionName" value="IMDBGenres"/>
 	</extension>
 	<extension plugin-id="org.drftpd.commands.find" point-id="Option" id="IMDBVotesOption">
 		<parameter id="ClassName" value="org.drftpd.commands.find.imdb.IMDBOption"/>
@@ -40,9 +40,9 @@
 		<parameter id="ClassName" value="org.drftpd.commands.find.imdb.IMDBOption"/>
 		<parameter id="OptionName" value="IMDBYear"/>
 	</extension>
-	<extension plugin-id="org.drftpd.commands.find" point-id="Option" id="IMDBScreensOption">
+	<extension plugin-id="org.drftpd.commands.find" point-id="Option" id="IMDBRuntimeOption">
 		<parameter id="ClassName" value="org.drftpd.commands.find.imdb.IMDBOption"/>
-		<parameter id="OptionName" value="IMDBScreens"/>
+		<parameter id="OptionName" value="IMDBRuntime"/>
 	</extension>
 	<!-- End Options -->
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="org.drftpd.commands.autonuke" version="3.2.0">
+<plugin id="org.drftpd.commands.autonuke" version="3.3.0">
     <attributes>
 		<attribute id="DefaultBuild" value="false" />
 		<attribute id="MustBuild" value="false" />
@@ -65,12 +65,6 @@
 	</extension>
     <extension plugin-id="org.drftpd.commands.autonuke" point-id="PreHook" id="doSITE_ANSCANPerm">
 		<parameter id="ParentMethod" value="doSITE_AUTONUKESCAN" />
-		<parameter id="HookClass" value="org.drftpd.commands.prehook.permissions.PermissionPreHook" />
-		<parameter id="HookMethod" value="doPermissionCheck" />
-		<parameter id="Priority" value="1" />
-	</extension>
-	<extension plugin-id="org.drftpd.commands.autonuke" point-id="PreHook" id="doSITE_APPROVEPerm">
-		<parameter id="ParentMethod" value="doSITE_APPROVE" />
 		<parameter id="HookClass" value="org.drftpd.commands.prehook.permissions.PermissionPreHook" />
 		<parameter id="HookMethod" value="doPermissionCheck" />
 		<parameter id="Priority" value="1" />
