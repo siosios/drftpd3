@@ -10,11 +10,10 @@
 */
 package org.drftpd.plugins.sitebot.blowfish;
 
-import org.apache.commons.net.util.Base64;
-
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 /**
  * BlowfishM CBC
@@ -25,18 +24,17 @@ import java.security.SecureRandom;
  * Tks to Murx for correct Padding and Long key.
  *
  * Use "encrypt" with the text to encrypt
- * 		-> The function will encrypt and return the text with +OK at the beginning"
+ *      -> The function will encrypt and return the text with +OK * at the beginning"
  *
  * Use "decrypt" with the text to decrypt
- * 		--> The text must include the +OK or mcps at the front"
+ *      -> The text must include the +OK * at the front"
  *
  * To Use Key > 16 char, you must update two jar files in your jre or jdk.
- * 		Java Cryptography Extension (JCE)
- * 		Unlimited Strength Jurisdiction Policy Files 1.4.2
- * 		http://java.sun.com/j2se/1.4.2/download.html#docs
+ *      Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 8
+ *      https://www.oracle.com/technetwork/java/javase/downloads/jce-all-download-5170447.html
  * Update the two files in jre\lib\security
- * 		-> local_policy.jar
- * 		-> US_export_policy.jar
+ *      -> local_policy.jar
+ *      -> US_export_policy.jar
  */
 public class BlowfishCBC extends Blowfish {
 
@@ -68,7 +66,7 @@ public class BlowfishCBC extends Blowfish {
         }
 
         //1- decrypt with BASE64 decoder
-        byte[] base64Decoded = Base64.decodeBase64(textToDecrypt);
+        byte[] base64Decoded = Base64.getDecoder().decode(textToDecrypt);
 
         //2- decrypt the string
         IvParameterSpec oIV = new IvParameterSpec(INIT_IV);
@@ -105,7 +103,7 @@ public class BlowfishCBC extends Blowfish {
         byte[] lEncoded = getCipher().doFinal(lFinalToDecrypt);
 
         //4- Encode with BASE64 encoder
-        String base64Encoded = Base64.encodeBase64StringUnChunked(lEncoded);
+        String base64Encoded = Base64.getEncoder().encodeToString(lEncoded);
 
         //5- Return the result
         return CBC_PREFIX.concat(base64Encoded);

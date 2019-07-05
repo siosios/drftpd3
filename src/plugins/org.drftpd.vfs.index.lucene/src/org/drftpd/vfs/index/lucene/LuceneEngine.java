@@ -55,9 +55,9 @@ import org.drftpd.vfs.index.lucene.extensions.QueryTermExtensionInterface;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.util.*;
-
 
 /**
  * Implementation of an Index engine based on <a href="http://lucene.apache.org">Apache Lucene</a>
@@ -1010,9 +1010,9 @@ public class LuceneEngine implements IndexEngineInterface {
 	/**
 	 * Custom FieldComparator to get a random result from index
 	 */
-	public class RandomOrderFieldComparator extends FieldComparator<Integer> {
+	public static class RandomOrderFieldComparator extends FieldComparator<Integer> {
 
-		private final Random random = new Random();
+		private final SecureRandom random = new SecureRandom();
 
 		@Override
 		public int compare(int slot1, int slot2) {

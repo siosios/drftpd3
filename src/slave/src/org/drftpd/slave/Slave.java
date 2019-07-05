@@ -38,11 +38,12 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
-
 
 /**
  * @author mog
@@ -73,7 +74,7 @@ public class Slave {
 	private RootCollection _roots;
 
 	private Socket _socket;
-	
+
 	private ObjectInputStream _sin;
 
 	private ObjectOutputStream _sout;
@@ -87,9 +88,9 @@ public class Slave {
 	private Set<QueuedOperation> _renameQueue = null;
 
 	private int _timeout;
-	
+
 	private SlaveProtocolCentral _central;
-	
+
 	private DiskSelectionInterface _diskSelection = null;
 
 	private boolean _ignorePartialRemerge;
@@ -97,7 +98,7 @@ public class Slave {
 	private boolean _threadedRemerge;
 
 	private boolean _concurrentRootIteration;
-	
+
 	private String _bindIP = null;
 
 	private boolean _online;
@@ -106,13 +107,13 @@ public class Slave {
 	}
 
 	public Slave(Properties p) throws IOException, SSLUnavailableException {
-		InetSocketAddress addr = new InetSocketAddress(PropertyHelper
-				.getProperty(p, "master.host"), Integer.parseInt(PropertyHelper
-				.getProperty(p, "master.bindport")));
-		
+		InetSocketAddress addr = new InetSocketAddress(PropertyHelper.getProperty(p, "master.host"),
+				Integer.parseInt(PropertyHelper.getProperty(p, "master.bindport")));
+
 		// Whatever interface the slave uses to connect to the master, is the
 		// interface that the master will report to clients requesting PASV
-		// transfers from this slave, unless pasv_addr is set on the master for this slave
+		// transfers from this slave, unless pasv_addr is set on the master for this
+		// slave
 		logger.info("Connecting to master at " + addr);
 
 		String slavename = PropertyHelper.getProperty(p, "slave.name");
@@ -132,7 +133,8 @@ public class Slave {
 		List<String> cipherSuites = new ArrayList<>();
 		List<String> supportedCipherSuites = new ArrayList<>();
 		try {
-			supportedCipherSuites.addAll(Arrays.asList(SSLContext.getDefault().getSupportedSSLParameters().getCipherSuites()));
+			supportedCipherSuites
+					.addAll(Arrays.asList(SSLContext.getDefault().getSupportedSSLParameters().getCipherSuites()));
 		} catch (Exception e) {
 			logger.error("Unable to get supported cipher suites, using default.", e);
 		}
@@ -145,7 +147,8 @@ public class Slave {
 			} else if (whitelistPattern.trim().length() == 0) {
 				continue;
 			}
-			if (!whitelist) whitelist = true;
+			if (!whitelist)
+				whitelist = true;
 			for (String cipherSuite : supportedCipherSuites) {
 				if (cipherSuite.matches(whitelistPattern)) {
 					cipherSuites.add(cipherSuite);
@@ -157,8 +160,8 @@ public class Slave {
 			cipherSuites.addAll(supportedCipherSuites);
 			if (whitelist) {
 				// There are at least one whitelist pattern specified
-				logger.warn("Bad whitelist pattern, no matching ciphers found. " +
-						"Adding default cipher set before continuing with blacklist check");
+				logger.warn("Bad whitelist pattern, no matching ciphers found. "
+						+ "Adding default cipher set before continuing with blacklist check");
 			}
 		}
 		// Parse cipher suite blacklist rules and remove matching ciphers from set
@@ -169,7 +172,7 @@ public class Slave {
 			} else if (blacklistPattern.trim().isEmpty()) {
 				continue;
 			}
-            cipherSuites.removeIf(cipherSuite -> cipherSuite.matches(blacklistPattern));
+			cipherSuites.removeIf(cipherSuite -> cipherSuite.matches(blacklistPattern));
 		}
 		if (cipherSuites.isEmpty()) {
 			_cipherSuites = null;
@@ -209,15 +212,15 @@ public class Slave {
 			_socket = new Socket();
 		}
 
-		if (PropertyHelper.getProperty(p, "bind.ip",null) != null) {
+		if (PropertyHelper.getProperty(p, "bind.ip", null) != null) {
 			try {
-				_socket.bind(new InetSocketAddress(PropertyHelper.getProperty(p, "bind.ip"),0));
-				_bindIP = PropertyHelper.getProperty(p, "bind.ip",null);
+				_socket.bind(new InetSocketAddress(PropertyHelper.getProperty(p, "bind.ip"), 0));
+				_bindIP = PropertyHelper.getProperty(p, "bind.ip", null);
 			} catch (IOException e) {
 				throw new IOException("Unable To Bind Port Correctly");
 			}
 		}
-		
+
 		try {
 			_timeout = Integer.parseInt(PropertyHelper.getProperty(p, "slave.timeout"));
 		} catch (NullPointerException e) {
@@ -233,11 +236,12 @@ public class Slave {
 				((SSLSocket) _socket).setEnabledProtocols(getSSLProtocols());
 			}
 			((SSLSocket) _socket).setUseClientMode(true);
-			
+
 			try {
 				((SSLSocket) _socket).startHandshake();
 			} catch (SSLHandshakeException e) {
-				throw new SSLUnavailableException("Handshake failure, maybe master isn't SSL ready or SSL is disabled.", e);
+				throw new SSLUnavailableException("Handshake failure, maybe master isn't SSL ready or SSL is disabled.",
+						e);
 			}
 		}
 		_sout = new ObjectOutputStream(new BufferedOutputStream(_socket.getOutputStream()));
@@ -245,7 +249,7 @@ public class Slave {
 		_sin = new ObjectInputStream(new BufferedInputStream(_socket.getInputStream()));
 
 		_central = new SlaveProtocolCentral(this);
-		
+
 		_sout.writeObject(slavename);
 		_sout.flush();
 		_sout.reset();
@@ -271,21 +275,22 @@ public class Slave {
 		_ignorePartialRemerge = p.getProperty("ignore.partialremerge", "false").equalsIgnoreCase("true");
 		_threadedRemerge = p.getProperty("threadedremerge", "false").equalsIgnoreCase("true");
 	}
-	
+
 	private void loadDiskSelection(Properties cfg) {
 		String desiredDs = PropertyHelper.getProperty(cfg, "diskselection");
 		try {
 			_diskSelection = CommonPluginUtils.getSinglePluginObject(this, "slave", "DiskSelection", "Class", desiredDs,
 					new Class[] { Slave.class }, new Object[] { this });
 		} catch (Exception e) {
-			throw new RuntimeException("Cannot create instance of diskselection, check 'diskselection' in the configuration file", e);
+			throw new RuntimeException(
+					"Cannot create instance of diskselection, check 'diskselection' in the configuration file", e);
 		}
 	}
 
 	public DiskSelectionInterface getDiskSelection() {
 		return _diskSelection;
 	}
-	
+
 	public RootCollection getDefaultRootBasket(Properties cfg) throws IOException {
 		ArrayList<Root> roots = new ArrayList<>();
 
@@ -316,7 +321,7 @@ public class Slave {
 
 		Slave s = new Slave(p);
 		s.getProtocolCentral().handshakeWithMaster();
-		
+
 		if (isWin32) {
 			s.startFileLockThread();
 		}
@@ -376,8 +381,7 @@ public class Slave {
 						_transfers.wait(5000);
 					} catch (InterruptedException e) {
 					}
-					for (Iterator<QueuedOperation> iter = _renameQueue.iterator(); iter
-							.hasNext();) {
+					for (Iterator<QueuedOperation> iter = _renameQueue.iterator(); iter.hasNext();) {
 						QueuedOperation qo = iter.next();
 						if (qo.getDestination() == null) { // delete
 							try {
@@ -389,19 +393,11 @@ public class Slave {
 							} catch (FileNotFoundException e) {
 								iter.remove();
 							} catch (IOException e) {
-								throw new RuntimeException("Win32 stinks",
-										e);
+								throw new RuntimeException("Win32 stinks", e);
 							}
 						} else { // rename
-							String fileName = qo.getDestination()
-									.substring(
-											qo.getDestination()
-													.lastIndexOf("/") + 1);
-							String destDir = qo.getDestination()
-									.substring(
-											0,
-											qo.getDestination()
-													.lastIndexOf("/"));
+							String fileName = qo.getDestination().substring(qo.getDestination().lastIndexOf("/") + 1);
+							String destDir = qo.getDestination().substring(0, qo.getDestination().lastIndexOf("/"));
 							try {
 								rename(qo.getSource(), destDir, fileName);
 								// rename successful
@@ -411,8 +407,7 @@ public class Slave {
 							} catch (FileNotFoundException e) {
 								iter.remove();
 							} catch (IOException e) {
-								throw new RuntimeException("Win32 stinks",
-										e);
+								throw new RuntimeException("Win32 stinks", e);
 							}
 						}
 					}
@@ -439,8 +434,8 @@ public class Slave {
 		logger.debug("Checksumming: " + file.getPath());
 
 		CRC32 crc32 = new CRC32();
-		try (CheckedInputStream in = new CheckedInputStream(new BufferedInputStream(
-				new FileInputStream(file)), crc32)){
+		try (CheckedInputStream in = new CheckedInputStream(new BufferedInputStream(new FileInputStream(file)),
+				crc32)) {
 			byte[] buf = new byte[16384];
 			while (in.read(buf) != -1) {
 			}
@@ -476,30 +471,42 @@ public class Slave {
 			} else if (file.isFile()) {
 				File dir = new PhysicalFile(file.getParentFile());
 				logger.info("DELETE: " + path);
-                logger.info("rmfile: " +file.getPath());
+				logger.info("rmfile: " + file.getPath());
 				if (!file.delete()) {
 					throw new PermissionDeniedException("delete failed on " + path);
 				}
 
-				String [] dirList = dir.list();
+				String[] dirList = dir.list();
 
+				// If the parent directory is empty, then loop to delete it along with empty
+				// parents
 				while ((dirList != null) && (dirList.length == 0)) {
+					// Stop at the root
 					if (dir.getPath().length() <= root.getPath().length()) {
 						break;
 					}
 
+					// Get the parent dir
 					java.io.File tmpFile = dir.getParentFile();
 
-					if (!dir.delete()) {
-						throw new PermissionDeniedException("delete failed on " + path);
+					try {
+						if (Files.deleteIfExists(dir.toPath())) {
+							logger.info("Dir empty, rmdir: " + dir.getPath());
+						} else {
+							logger.info("dir was empty, but doesn't exist anymore, that is fine " + dir.getPath());
+						}
+					} catch (DirectoryNotEmptyException dnee) {
+						logger.info("dir was not empty, that is fine, we keep " + dir.getPath());
+						break;
 					}
-					logger.info("Dir empty, rmdir: " + dir.getPath());
 
+					// If the parent dir doesn't exist, break the loop
 					if (tmpFile == null) {
 						break;
 					}
-					dir = new PhysicalFile(tmpFile);
 
+					// Rearm the loop on the parent dir
+					dir = new PhysicalFile(tmpFile);
 					dirList = dir.list();
 				}
 			}
@@ -533,7 +540,7 @@ public class Slave {
 	private AsyncResponse handleCommand(AsyncCommandArgument ac) {
 		return _central.handleCommand(ac);
 	}
-	
+
 	private void listenForCommands() throws IOException {
 		long lastCommandReceived = System.currentTimeMillis();
 		while (true) {
@@ -556,7 +563,8 @@ public class Slave {
 				// connection to the master is dead or there is a configuration
 				// error
 				if (_timeout < (System.currentTimeMillis() - lastCommandReceived)) {
-					logger.error("Slave is going offline as it hasn't received any communication from the master in " + (System.currentTimeMillis() - lastCommandReceived) + " milliseconds");
+					logger.error("Slave is going offline as it hasn't received any communication from the master in "
+							+ (System.currentTimeMillis() - lastCommandReceived) + " milliseconds");
 					throw new RuntimeException(e);
 				}
 				continue;
@@ -615,8 +623,7 @@ public class Slave {
 		}
 	}
 
-	public void rename(String from, String toDirPath, String toName)
-			throws IOException {
+	public void rename(String from, String toDirPath, String toName) throws IOException {
 		for (Iterator<Root> iter = _roots.iterator(); iter.hasNext();) {
 			Root root = iter.next();
 
@@ -629,16 +636,16 @@ public class Slave {
 			File toDir = root.getFile(toDirPath);
 			File tofile = new File(toDir.getPath() + File.separator + toName);
 
-			if (!toDir.exists()	&& !toDir.mkdirs()) {
-				throw new PermissionDeniedException("renameTo(" + fromfile + ", " + tofile +
-						") failed to create destination folder");
+			if (!toDir.exists() && !toDir.mkdirs()) {
+				throw new PermissionDeniedException(
+						"renameTo(" + fromfile + ", " + tofile + ") failed to create destination folder");
 			}
 
 			// !win32 == true on linux
 			// !win32 && equalsignore == true on win32
-			if (tofile.exists()
-					&& !(isWin32 && fromfile.getName().equalsIgnoreCase(toName))) {
-				throw new FileExistsException("cannot rename from " + fromfile + " to " + tofile + ", destination exists");
+			if (tofile.exists() && !(isWin32 && fromfile.getName().equalsIgnoreCase(toName))) {
+				throw new FileExistsException(
+						"cannot rename from " + fromfile + " to " + tofile + ", destination exists");
 			}
 
 			if (!fromfile.renameTo(tofile)) {
@@ -692,35 +699,35 @@ public class Slave {
 		}
 		return _sslProtocols;
 	}
-	
+
 	public Map<TransferIndex, Transfer> getTransferMap() {
 		return _transfers;
 	}
-	
+
 	public SSLContext getSSLContext() {
 		return _ctx;
 	}
-	
+
 	public Set<QueuedOperation> getRenameQueue() {
 		return _renameQueue;
 	}
-	
+
 	public PortRange getPortRange() {
 		return _portRange;
 	}
-	
+
 	public String getBindIP() {
 		return _bindIP;
 	}
-	
+
 	public ObjectInputStream getInputStream() {
 		return _sin;
 	}
-	
+
 	public ObjectOutputStream getOutputStream() {
 		return _sout;
 	}
-	
+
 	public SlaveProtocolCentral getProtocolCentral() {
 		return _central;
 	}

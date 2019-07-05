@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="master" version="3.3.0" class="org.drftpd.master.Boot">
+<plugin id="master" version="3.4.0" class="org.drftpd.master.Boot">
 	<doc>
 		<doc-text>(Required) - This is the main MASTER process to which FTP clients connect.</doc-text>
 	</doc>
@@ -19,16 +19,13 @@
 		<library id="replacer" path="../../lib/replacer.jar" type="code">
 			<export prefix="*" />
 		</library>
-		<library id="commons-collections4" path="../../lib/commons-collections4-4.2.jar" type="code">
+		<library id="commons-collections4" path="../../lib/commons-collections4-4.3.jar" type="code">
 			<export prefix="*" />
 		</library>
-		<library id="commons-net" path="../../lib/commons-net-3.6.jar" type="code">
+		<library id="httpclient" path="../../lib/httpclient-4.5.7.jar" type="code">
 			<export prefix="*" />
 		</library>
-		<library id="httpclient" path="../../lib/httpclient-4.5.6.jar" type="code">
-			<export prefix="*" />
-		</library>
-		<library id="httpcore" path="../../lib/httpcore-4.4.10.jar" type="code">
+		<library id="httpcore" path="../../lib/httpcore-4.4.11.jar" type="code">
 			<export prefix="*" />
 		</library>
 		<library id="eventbus" path="../../lib/eventbus-1.4.jar" type="code">
@@ -37,7 +34,7 @@
 		<library id="wrapper" path="../../lib/wrapper.jar" type="code">
 			<export prefix="*" />
 		</library>
-		<library id="json-io" path="../../lib/json-io-4.10.0.jar" type="code">
+		<library id="json-io" path="../../lib/json-io-4.10.1.jar" type="code">
 			<export prefix="*" />
 		</library>
 	</runtime>
