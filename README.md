@@ -32,7 +32,7 @@ This is an advantage as it simplifies administration of the slaves.
 
 # Installation steps
 
-DrFTPD 3.4.0 installation requires a number of steps before you can utilize the software to its full extend.
+DrFTPD 3.4.1 installation requires a number of steps before you can utilize the software to its full extend.
 To give an overview of the installation process the different steps are listed below in this section.
 
 On the master you will need to:
@@ -182,4 +182,4 @@ Search on libTerminal.so where you can test a few versions that people have uplo
 
 # Online Help 
 
-If you use IRC, connect to EFnet and join #drftpd, #drftpd-develop. Alternatively use the github repository https://github.com/drftpd-ng/drftpd3
+If you use IRC, connect to EFnet and join #drftpd, #drftpd-devel. Alternatively use the github repository https://github.com/drftpd-ng/drftpd3

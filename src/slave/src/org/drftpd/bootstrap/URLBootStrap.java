@@ -17,6 +17,7 @@
  */
 package org.drftpd.bootstrap;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -36,6 +37,12 @@ public class URLBootStrap {
 		Method met = cl.loadClass(args[1]).getMethod("main",
                 String[].class);
 		met.invoke(null, new Object[] { scrubArgs(args, 2) });
+		// Close cl
+		try {
+			cl.close();
+		} catch (IOException e) {
+			// already closed
+		}
 	}
 
 	public static String[] scrubArgs(String[] args, int scrub) {
