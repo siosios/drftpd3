@@ -1,0 +1,17 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: maven:3.6.3-jdk-14
+    steps:
+      - checkout
+      - run:
+          name: Maven build
+          command: 'mvn package'
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
