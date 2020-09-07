@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.sitebot.plugins.dailystats;
 
@@ -26,7 +27,7 @@ import org.drftpd.master.GlobalContext;
 import org.drftpd.master.event.ReloadEvent;
 import org.drftpd.master.sitebot.plugins.dailystats.event.StatsEvent;
 import org.drftpd.master.usermanager.User;
-import org.drftpd.master.usermanager.UserResetHookInterface;
+import org.drftpd.master.usermanager.UserResetPreHookInterface;
 import org.drftpd.master.usermanager.util.UserComparator;
 
 import java.util.*;
@@ -36,7 +37,7 @@ import java.util.*;
  * @author cyber
  * @version $Id: DailyStats.java 2230 2010-10-27 21:37:13Z scitz0 $
  */
-public class DailyStats implements UserResetHookInterface {
+public class DailyStats implements UserResetPreHookInterface {
 
     private static final Logger logger = LogManager.getLogger(DailyStats.class);
 
@@ -85,42 +86,42 @@ public class DailyStats implements UserResetHookInterface {
 
         for (int i = 0; ((i < _outputnum) && (i < initialUsers.size())); ++i) {
             switch (type) {
-                case "dayup":
+                case "dayup" -> {
                     if ((initialUsers.get(i).getUploadedBytesDay() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getUploadedBytesDay());
                     files = String.valueOf(initialUsers.get(i).getUploadedFilesDay());
-                    break;
-                case "daydn":
+                }
+                case "daydn" -> {
                     if ((initialUsers.get(i).getDownloadedBytesDay() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getDownloadedBytesDay());
                     files = String.valueOf(initialUsers.get(i).getDownloadedFilesDay());
-                    break;
-                case "wkup":
+                }
+                case "wkup" -> {
                     if ((initialUsers.get(i).getUploadedBytesWeek() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getUploadedBytesWeek());
                     files = String.valueOf(initialUsers.get(i).getUploadedFilesWeek());
-                    break;
-                case "wkdn":
+                }
+                case "wkdn" -> {
                     if ((initialUsers.get(i).getDownloadedBytesWeek() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getDownloadedBytesWeek());
                     files = String.valueOf(initialUsers.get(i).getDownloadedFilesWeek());
-                    break;
-                case "monthup":
+                }
+                case "monthup" -> {
                     if ((initialUsers.get(i).getUploadedBytesMonth() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getUploadedBytesMonth());
                     files = String.valueOf(initialUsers.get(i).getUploadedFilesMonth());
-                    break;
-                case "monthdn":
+                }
+                case "monthdn" -> {
                     if ((initialUsers.get(i).getDownloadedBytesMonth() < 1) && (!_showzero))
                         continue;
                     bytes = Bytes.formatBytes(initialUsers.get(i).getDownloadedBytesMonth());
                     files = String.valueOf(initialUsers.get(i).getDownloadedFilesMonth());
-                    break;
+                }
             }
             name = initialUsers.get(i).getName();
             outputUsers.add(new UserStats(name, files, bytes));

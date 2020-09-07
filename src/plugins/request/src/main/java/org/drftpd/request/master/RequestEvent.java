@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.request.master;
 
@@ -39,9 +39,9 @@ public class RequestEvent extends Event {
     private final String _requestName;
 
     /**
-     * This constructor is useful for REQUEST events since the <code>request owner</code> is equals to <code>command issuer</code>
+     * This constructor is useful for REQUEST events since the {@code request owner} is equals to {@code command issuer}
      *
-     * @param command      the type of the command that generated this event <code>request/reqfilled/reqdelete</code>
+     * @param command      the type of the command that generated this event {@code request/reqfilled/reqdelete}
      * @param requestRoot  the request root (ex: /requests/)
      * @param requestOwner the user who requested
      * @param requestName  what the user requested
@@ -51,9 +51,9 @@ public class RequestEvent extends Event {
     }
 
     /**
-     * This constructor is useful for REQFILLED/REQDELETE events since the <code>request owner</code> is <b>not</b> equals to <code>command issuer</code>
+     * This constructor is useful for REQFILLED/REQDELETE events since the {@code request owner} is <b>not</b> equals to {@code command issuer}
      *
-     * @param command       the type of the command that generated this event <code>request/reqfilled/reqdelete</code>
+     * @param command       the type of the command that generated this event {@code request/reqfilled/reqdelete}
      * @param requestRoot   the request root (ex: /requests/)
      * @param requestOwner  the user who requested
      * @param commandIssuer the user who issued the command that fired this event.

@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.commands;
 
@@ -31,12 +31,8 @@ import org.drftpd.master.usermanager.NoSuchUserException;
 import org.drftpd.master.usermanager.User;
 import org.drftpd.master.usermanager.UserFileException;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -65,19 +61,21 @@ public abstract class CommandInterface {
         Multimap<Integer, HookContainer> preHooks = MultimapBuilder.treeKeys().linkedListValues().build();
         Set<Method> hooksMethods = GlobalContext.getHooksMethods();
         // TODO [DONE] @k2r Plug hooks
-        logger.debug("[" + pluginName + ":" + method + "] Looking for hooks to attach here");
+        logger.debug("[{}:{}] Looking for hooks to attach here", pluginName, method);
         try {
             for (Method annotatedMethod : hooksMethods) {
                 Class<?> declaringClass = annotatedMethod.getDeclaringClass();
                 CommandHook annotation = annotatedMethod.getAnnotation(CommandHook.class);
                 int priority = annotation.priority();
                 List<String> commands = Arrays.asList(annotation.commands());
-                // boolean handleClass = commands.stream().filter(c -> method.matches(c)).collect(Collectors.toList()).size() > 0;
-
                 boolean handleClass = commands.contains(method) || commands.contains("*");
                 if (!handleClass) continue;
-
-                Object hookClass = declaringClass.getConstructor().newInstance();
+                // Sometimes we need to inject the command manager and sometimes not.
+                Constructor<?> declaredConstructor = declaringClass.getDeclaredConstructors()[0];
+                boolean needManager = declaredConstructor.getParameterCount() == 1;
+                Constructor<?> constructor = needManager ? declaringClass.getConstructor(CommandManagerInterface.class)
+                        : declaringClass.getConstructor();
+                Object hookClass = needManager ? constructor.newInstance(cManager) : constructor.newInstance();
                 HookType type = annotation.type();
                 if (type.equals(HookType.PRE)) {
                     preHooks.put(priority, new HookContainer(annotatedMethod, hookClass));
@@ -86,9 +84,9 @@ public abstract class CommandInterface {
                 }
             }
         } catch (Exception e) {
-            logger.error("Failed to load plugins for {} extension point 'PreHook', possibly the {} extension point definition has changed in the plugin.xml", pluginName, pluginName, e);
+            logger.error("Failed to load plugins for {} extension point 'PreHook or postHook'", pluginName, e);
         }
-        logger.debug("[" + pluginName + ":" + method + "] Loaded [" + preHooks.size() + "] prehooks and [" + postHooks.size() + "] posthooks");
+        logger.debug("[{}:{}] Loaded [{}] prehooks and [{}] posthooks", pluginName, method, preHooks.size(), postHooks.size());
         _preHooks = preHooks;
         _postHooks = postHooks;
     }

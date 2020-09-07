@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,24 +13,30 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.util;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpStatus;
+
+import org.apache.hc.client5.http.config.RequestConfig;
+
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 
 import java.io.IOException;
 import java.text.Normalizer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author scitz0
@@ -40,10 +46,10 @@ public class HttpUtils {
 
     public static String retrieveHttpAsString(String url) throws HttpException, IOException {
         RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(5000)
-                .setConnectTimeout(5000)
-                .setConnectionRequestTimeout(5000)
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .setResponseTimeout(5000, TimeUnit.MILLISECONDS)
+                .setConnectTimeout(5000, TimeUnit.MILLISECONDS)
+                .setConnectionRequestTimeout(5000, TimeUnit.MILLISECONDS)
+                .setCookieSpec(StandardCookieSpec.IGNORE)
                 .build();
         CloseableHttpClient httpclient = HttpClients.custom()
                 .setDefaultRequestConfig(requestConfig)
@@ -54,7 +60,7 @@ public class HttpUtils {
         CloseableHttpResponse response = null;
         try {
             response = httpclient.execute(httpGet);
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final int statusCode = response.getCode();
             if (statusCode != HttpStatus.SC_OK) {
                 throw new HttpException("Error " + statusCode + " for URL " + url);
             }

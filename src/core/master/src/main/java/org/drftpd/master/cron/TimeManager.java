@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.cron;
 
@@ -32,9 +33,12 @@ import java.util.*;
 public class TimeManager {
 
     private static final Logger logger = LogManager.getLogger(TimeManager.class);
+
     private static final long MINUTE = 60 * 1000L;
     private static final long HOUR = MINUTE * 60;
+
     private final ArrayList<TimeEventInterface> _timedEvents;
+
     TimerTask _processHour = new TimerTask() {
         public void run() {
             doReset(Calendar.getInstance());
@@ -59,6 +63,7 @@ public class TimeManager {
     }
 
     public void doReset(Calendar cal) {
+        logger.debug("doReset called - " + cal.toString());
         // Check if EuropeanCalendar and change if needed
         if (isEuropeanCalendar()) {
             cal.setFirstDayOfWeek(Calendar.MONDAY);
@@ -69,7 +74,6 @@ public class TimeManager {
         int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
         int minuteOfHour = cal.get(Calendar.MINUTE);
         int monthOfYear = cal.get(Calendar.MONTH);
-
 
         if (minuteOfHour != 0) {
             throw new IllegalArgumentException("This thread needs to be run within the first minute of the hour, time is - " + cal.getTime());
@@ -97,7 +101,7 @@ public class TimeManager {
     }
 
     private void doMethodOnTimeEvents(String methodName, Date d) {
-        List<TimeEventInterface> tempList = null;
+        List<TimeEventInterface> tempList;
         synchronized (this) {
             tempList = new ArrayList<>(_timedEvents);
         }
@@ -133,7 +137,8 @@ public class TimeManager {
     /**
      * Should be called on startup after the appropriate TimeEventInterfaces have been added
      *
-     * @param oldDate
+     * @param oldDate The start date
+     * @param newDate The end date
      */
     public void processTimeEventsBetweenDates(Date oldDate, Date newDate) {
         Calendar oldCal = Calendar.getInstance();

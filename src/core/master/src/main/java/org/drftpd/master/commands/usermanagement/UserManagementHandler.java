@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.commands.usermanagement;
 
@@ -189,7 +190,7 @@ public class UserManagementHandler extends CommandInterface {
             }
             Collection<User> groupUsers = GlobalContext.getGlobalContext().getUserManager().getAllUsersByGroup(g);
             int users = groupUsers.size();
-            logger.debug("Group: [" + g.getName() + "], users[" + users + "]: [" + groupUsers + "]");
+            logger.debug("Group: [{}], users[{}]: [{}]", g.getName(), users, groupUsers);
             if (users >= g.getGroupSlots()) {
                 return new CommandResponse(452, session.jprintf(_bundle, "adduser.noslots", request.getUser()));
             }
@@ -212,7 +213,7 @@ public class UserManagementHandler extends CommandInterface {
             String maxsimup = cfg.getProperty("max_uploads", "2");
             String maxsimdn = cfg.getProperty("max_downloads", "2");
             String idletime = cfg.getProperty("idle_time", "300");
-            String wklyallot = cfg.getProperty("wkly_allotment", "0");
+            String wklyallotment = cfg.getProperty("wkly_allotment", "0");
             String credits = cfg.getProperty("credits", "0b");
             String tagline = cfg.getProperty("tagline", "No tagline set.");
 
@@ -223,7 +224,7 @@ public class UserManagementHandler extends CommandInterface {
             int maxsimdnVal = Integer.parseInt(maxsimdn);
             int idletimeVal = Integer.parseInt(idletime);
             long creditsVal = Bytes.parseBytes(credits);
-            long wklyallotVal = Bytes.parseBytes(wklyallot);
+            long wklyallotmentVal = Bytes.parseBytes(wklyallotment);
 
             // action, no more NoSuchElementException below here
             newUser = GlobalContext.getGlobalContext().getUserManager().createUser(newUsername);
@@ -231,21 +232,19 @@ public class UserManagementHandler extends CommandInterface {
             newUser.setPassword(pass);
             newUser.getKeyedMap().setObject(UserManagement.CREATED, new Date());
             newUser.getKeyedMap().setObject(UserManagement.LASTSEEN, new Date());
-            newUser.getKeyedMap().setObject(UserManagement.BAN_TIME, new Date());
+            newUser.getKeyedMap().setObject(UserManagement.BANTIME, new Date());
             newUser.getKeyedMap().setObject(UserManagement.COMMENT, "Added by " + currentUser.getName());
 
             // TODO fix this.
             //newUser.getKeyedMap().setObject(Statistics.LOGINS,0);
-
             newUser.getKeyedMap().setObject(UserManagement.IRCIDENT, "");
-
             newUser.getKeyedMap().setObject(UserManagement.TAGLINE, tagline);
             newUser.getKeyedMap().setObject(UserManagement.RATIO, ratioVal);
             newUser.getKeyedMap().setObject(UserManagement.MAXLOGINS, maxloginsVal);
             newUser.getKeyedMap().setObject(UserManagement.MAXLOGINSIP, maxloginsipVal);
             newUser.getKeyedMap().setObject(UserManagement.MAXSIMUP, maxsimupVal);
             newUser.getKeyedMap().setObject(UserManagement.MAXSIMDN, maxsimdnVal);
-            newUser.getKeyedMap().setObject(UserManagement.WKLY_ALLOTMENT, wklyallotVal);
+            newUser.getKeyedMap().setObject(UserManagement.WKLYALLOTMENT, wklyallotmentVal);
 
             newUser.setIdleTime(idletimeVal);
             newUser.setCredits(creditsVal);
@@ -268,6 +267,9 @@ public class UserManagementHandler extends CommandInterface {
         } catch (NumberFormatException e) {
             logger.error(e, e);
             return new CommandResponse(501, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error(e, e);
+            return new CommandResponse(500, e.getMessage());
         }
 
         while (st.hasMoreTokens()) {
@@ -685,8 +687,8 @@ public class UserManagementHandler extends CommandInterface {
 
                     long weeklyAllotment = Bytes.parseBytes(commandArguments[0]);
                     logger.info("'{}' changed wkly_allotment for '{}' from '{}' to {}'", session.getUserNull(request.getUser()).getName(), userToChange.getName(), userToChange.getKeyedMap().getObjectLong(
-                            UserManagement.WKLY_ALLOTMENT), weeklyAllotment);
-                    userToChange.getKeyedMap().setObject(UserManagement.WKLY_ALLOTMENT,
+                            UserManagement.WKLYALLOTMENT), weeklyAllotment);
+                    userToChange.getKeyedMap().setObject(UserManagement.WKLYALLOTMENT,
                             weeklyAllotment);
 
                     response = StandardCommandManager.genericResponse("RESPONSE_200_COMMAND_OK");
@@ -1758,9 +1760,9 @@ public class UserManagementHandler extends CommandInterface {
                     + banTime + "m";
         }
 
-        myUser.getKeyedMap().setObject(UserManagement.BAN_TIME,
+        myUser.getKeyedMap().setObject(UserManagement.BANTIME,
                 new Date(System.currentTimeMillis() + (banTime * 60000)));
-        myUser.getKeyedMap().setObject(UserManagement.BAN_REASON, banMsg);
+        myUser.getKeyedMap().setObject(UserManagement.BANREASON, banMsg);
         myUser.commit();
 
         return StandardCommandManager.genericResponse("RESPONSE_200_COMMAND_OK");
@@ -1797,9 +1799,9 @@ public class UserManagementHandler extends CommandInterface {
         for (User user : GlobalContext.getGlobalContext().getUserManager().getAllUsers()) {
             if (user.getName().equals(executioner))
                 continue;
-            user.getKeyedMap().setObject(UserManagement.BAN_TIME,
+            user.getKeyedMap().setObject(UserManagement.BANTIME,
                     new Date(System.currentTimeMillis() + (banTime * 60000)));
-            user.getKeyedMap().setObject(UserManagement.BAN_REASON, banMsg);
+            user.getKeyedMap().setObject(UserManagement.BANREASON, banMsg);
             user.commit();
         }
 
@@ -1827,8 +1829,8 @@ public class UserManagementHandler extends CommandInterface {
             return new CommandResponse(200, e.getMessage());
         }
 
-        myUser.getKeyedMap().setObject(UserManagement.BAN_TIME, new Date());
-        myUser.getKeyedMap().setObject(UserManagement.BAN_REASON, "");
+        myUser.getKeyedMap().setObject(UserManagement.BANTIME, new Date());
+        myUser.getKeyedMap().setObject(UserManagement.BANREASON, "");
 
         myUser.commit();
 
@@ -1838,8 +1840,8 @@ public class UserManagementHandler extends CommandInterface {
     public CommandResponse doSITE_UNBANALL(CommandRequest request) {
 
         for (User user : GlobalContext.getGlobalContext().getUserManager().getAllUsers()) {
-            user.getKeyedMap().setObject(UserManagement.BAN_TIME, new Date());
-            user.getKeyedMap().setObject(UserManagement.BAN_REASON, "");
+            user.getKeyedMap().setObject(UserManagement.BANTIME, new Date());
+            user.getKeyedMap().setObject(UserManagement.BANREASON, "");
             user.commit();
         }
 
@@ -1852,7 +1854,7 @@ public class UserManagementHandler extends CommandInterface {
         CommandResponse response = StandardCommandManager.genericResponse("RESPONSE_200_COMMAND_OK");
         for (User user : myUsers) {
             long timeleft = user.getKeyedMap().getObject(
-                    UserManagement.BAN_TIME, new Date()).getTime()
+                    UserManagement.BANTIME, new Date()).getTime()
                     - System.currentTimeMillis();
             if (timeleft > 0) {
                 Map<String, Object> env = new HashMap<>();

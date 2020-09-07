@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.request.master;
 
@@ -72,7 +72,7 @@ public class Request extends CommandInterface {
     }
 
     /**
-     * Reads 'conf/plugins/request.conf'
+     * Reads 'config/plugins/request.conf'
      */
     private void readConfig() {
         Properties props = ConfigLoader.loadPluginConfig("request.conf");
@@ -93,7 +93,7 @@ public class Request extends CommandInterface {
     }
 
     /**
-     * Create the request directory if it does not exist and 'request.createpath' is <code>true</code>
+     * Create the request directory if it does not exist and 'request.createpath' is {@code true}
      */
     private void createDirectory() {
         DirectoryHandle requestDir = new DirectoryHandle(_requestPath);
@@ -111,7 +111,7 @@ public class Request extends CommandInterface {
 
     /**
      * If the commands has a 'request.dirpath' set we will use this one
-     * otherwise we will use the fallback/default path set in 'conf/plugins/request.conf'
+     * otherwise we will use the fallback/default path set in 'config/plugins/request.conf'
      * <p>
      * This allows multiple request dirs.
      *

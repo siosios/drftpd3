@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master;
 
@@ -212,10 +212,10 @@ public class Master {
             }
         }
 
-        Date banTime = user.getKeyedMap().getObject(UserManagement.BAN_TIME, new Date());
+        Date banTime = user.getKeyedMap().getObject(UserManagement.BANTIME, new Date());
         if (banTime.getTime() > System.currentTimeMillis()) {
             return new FtpReply(530, "Sorry you are banned until "
-                    + banTime + "! (" + user.getKeyedMap().getObjectString(UserManagement.BAN_REASON) + ")");
+                    + banTime + "! (" + user.getKeyedMap().getObjectString(UserManagement.BANREASON) + ")");
         }
 
         if (!baseconn.isSecure() && GlobalContext.getConfig().checkPermission("userrejectinsecure", user)) {
@@ -241,7 +241,7 @@ public class Master {
     }
 
     /**
-     * returns a <code>Collection</code> of current connections
+     * returns a {@code Collection} of current connections
      */
     public List<BaseFtpConnection> getConnections() {
         return new ArrayList<>(_conns);
@@ -287,7 +287,7 @@ public class Master {
 
     /**
      * Handles the load of the FTP Commands.
-     * Firstly, it checks if <code>conf/ftpcommands.conf</code> exists, if not it halts the daemon.
+     * Firstly, it checks if {@code config/commands/ftp/*.conf} exists, if not it halts the daemon.
      * After that it read the file and create a list of the existing commands.
      */
     private void loadCommands() {

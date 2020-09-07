@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.zipscript.master.sfv.hooks;
 
@@ -25,7 +25,7 @@ import org.drftpd.common.extensibility.HookType;
 import org.drftpd.common.util.Bytes;
 import org.drftpd.common.util.ConfigLoader;
 import org.drftpd.master.GlobalContext;
-import org.drftpd.master.Master;
+import org.drftpd.master.commands.CommandManagerInterface;
 import org.drftpd.master.commands.CommandRequest;
 import org.drftpd.master.commands.CommandResponse;
 import org.drftpd.master.commands.dataconnection.DataConnectionHandler;
@@ -66,8 +66,8 @@ public class ZipscriptPostHook extends SFVTools {
     private static final Logger logger = LogManager.getLogger(ZipscriptPostHook.class);
     private final ResourceBundle _bundle;
 
-    public ZipscriptPostHook() {
-        _bundle = Master.getConnectionManager().getCommandManager().getResourceBundle();
+    public ZipscriptPostHook(CommandManagerInterface manager) {
+        _bundle = manager.getResourceBundle();
     }
 
     @CommandHook(commands = "doRETR", priority = 10, type = HookType.POST)

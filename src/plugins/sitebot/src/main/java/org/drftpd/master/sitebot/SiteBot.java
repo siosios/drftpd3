@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.sitebot;
 
@@ -222,7 +222,7 @@ public class SiteBot implements ReplyConstants, Runnable {
             if (factory == null) {
                 factory = SocketFactory.getDefault();
             }
-            logger.debug("Connecting to [" + _server + ":" + _port + "]");
+            logger.debug("Connecting to [{}:{}]", _server, _port);
             if (bindAddress == null || bindAddress.equals("")) {
                 socket = factory.createSocket(_server, _port);
             } else {
@@ -232,7 +232,7 @@ public class SiteBot implements ReplyConstants, Runnable {
             if (isSSL && sslProtocols != null && sslProtocols.length > 0) {
                 ((SSLSocket) socket).setEnabledProtocols(GlobalContext.getConfig().getSSLProtocols());
             }
-            logger.info("*** Connected to server [" + _server + ":" + _port + "]");
+            logger.info("*** Connected to server [{}:{}]", _server, _port);
         } catch (IOException e) {
             // Something failed during connecting, call reconnect() to try another server
             logger.warn("Connection to {}:{} failed, retrying or trying next server if one is available", _server, _port);
@@ -501,7 +501,7 @@ public class SiteBot implements ReplyConstants, Runnable {
      *    sendMessage("Paul", "Hi");</pre>
      * <p>
      * You may optionally apply colours, boldness, underlining, etc to
-     * the message by using the <code>Colors</code> class.
+     * the message by using the {@code Colors} class.
      *
      * @param target  The name of the channel or user nick to send to.
      * @param message The message to send.
@@ -534,7 +534,7 @@ public class SiteBot implements ReplyConstants, Runnable {
      * Sends a CTCP command to a channel or user.  (Client to client protocol).
      * Examples of such commands are "PING <number>", "FINGER", "VERSION", etc.
      * For example, if you wish to request the version of a user called "Dave",
-     * then you would call <code>sendCTCPCommand("Dave", "VERSION");</code>.
+     * then you would call {@code sendCTCPCommand("Dave", "VERSION");}.
      * The type of response to such commands is largely dependant on the target
      * client software.
      *
@@ -750,7 +750,7 @@ public class SiteBot implements ReplyConstants, Runnable {
         if (line.length() == 0) {
             return;
         }
-        logger.debug("[RAW INPUT]: " + line);
+        logger.debug("[RAW INPUT]: {}", line);
 
         // Check for server pings.
         if (line.startsWith("PING ")) {
@@ -1125,10 +1125,10 @@ public class SiteBot implements ReplyConstants, Runnable {
      * For example, we can use this method to discover the topic of a
      * channel when we join it.  If we join the channel #test which
      * has a topic of &quot;I am King of Test&quot; then the response
-     * will be &quot;<code>PircBot #test :I Am King of Test</code>&quot;
+     * will be &quot;{@code PircBot #test :I Am King of Test}&quot;
      * with a code of 332 to signify that this is a topic.
      * (This is just an example - note that overriding the
-     * <code>onTopic</code> method is an easier way of finding the
+     * {@code onTopic} method is an easier way of finding the
      * topic for a channel). Check the IRC RFC for the full list of other
      * command response codes.
      * <p>
@@ -2400,13 +2400,13 @@ public class SiteBot implements ReplyConstants, Runnable {
      * multiple server connectivity. The format of
      * this String may change between different versions of PircBot
      * but is currently something of the form
-     * <code>
+     * {@code
      * Version{PircBot x.y.z Java IRC Bot - www.jibble.org}
      * Connected{true}
      * Server{irc.dal.net}
      * Port{6667}
      * Password{}
-     * </code>
+     * }
      *
      * @return a String representation of this object.
      * @since PircBot 0.9.10
@@ -2615,7 +2615,7 @@ public class SiteBot implements ReplyConstants, Runnable {
 
     /**
      * Handles the load of the IRC Commands.
-     * Firstly, it checks if <code>conf/plugins/irc/irccommands.conf</code> exists, if not it halts the daemon.
+     * Firstly, it checks if {@code conf/plugins/irc/irccommands.conf} exists, if not it halts the daemon.
      * After that it read the file and create a list of the existing commands.
      */
     private void loadCommands() {
@@ -2641,7 +2641,7 @@ public class SiteBot implements ReplyConstants, Runnable {
         Properties cmd = _cmds.get(request.getCommand());
         // Check if we know of this command, if not just return
         if (cmd == null) {
-            logger.debug("Found line starting with correct command trigger " + _config.getCommandTrigger() + ", but no matching command found");
+            logger.debug("Found line starting with correct command trigger {}, but no matching command found", _config.getCommandTrigger());
             return;
         }
         String inputs = cmd.getProperty("input", "");
@@ -2666,7 +2666,7 @@ public class SiteBot implements ReplyConstants, Runnable {
 
         // If we have not found valid inputs, bail out
         if (!proceed) {
-            logger.debug("No valid input combination found for command " + request.getCommand());
+            logger.debug("No valid input combination found for command {}", request.getCommand());
             return;
         }
 
@@ -2695,7 +2695,7 @@ public class SiteBot implements ReplyConstants, Runnable {
 
         // If we have not found valid outputs, bail out
         if (cmdOutputs.isEmpty()) {
-            logger.debug("No valid output combination found for command " + request.getCommand());
+            logger.debug("No valid output combination found for command {}", request.getCommand());
             return;
         }
 

@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.commands.dataconnection;
 
@@ -157,7 +158,7 @@ public class DataConnectionHandler extends CommandInterface {
     }
 
     /**
-     * <code>PASV &lt;CRLF&gt;</code><br>
+     * {@code PASV <CRLF>}<br>
      * <p>
      * This command requests the server-DTP to "listen" on a data port (which is
      * not its default data port) and to wait for a connection rather than
@@ -206,16 +207,16 @@ public class DataConnectionHandler extends CommandInterface {
                     try {
                         slave = conn.getGlobalContext().getSlaveSelectionManager().getASlave(conn,
                                 Transfer.TRANSFER_SENDING_DOWNLOAD, ts.getTransferFile());
-                        logger.debug("PASV Download slave selected " + slave.getName());
+                        logger.debug("PASV Download slave selected {}", slave.getName());
                         String index = SlaveManager.getBasicIssuer().issueListenToSlave(slave,
                                 ts.getSendFilesEncrypted(), ts.getSSLHandshakeClientMode());
-                        logger.debug("PASV Download index calculated " + index);
+                        logger.debug("PASV Download index calculated {}", index);
                         ci = slave.fetchTransferResponseFromIndex(index);
-                        logger.debug("PASV Download fetch connection info " + ci.toString());
+                        logger.debug("PASV Download fetch connection info {}", ci.toString());
                         ts.setTransfer(slave.getTransfer(ci.getTransferIndex()));
                         logger.debug("PASV Download transfer set to index");
                         address = new InetSocketAddress(slave.getPASVIP(), ts.getAddress().getPort());
-                        logger.debug("PASV Download address selected " + address.getHostString());
+                        logger.debug("PASV Download address selected {}", address.getHostString());
                     } catch (NoAvailableSlaveException e) {
                         logger.error("PASV Download NoAvailableSlaveException", e);
                         reset(conn);
@@ -240,16 +241,16 @@ public class DataConnectionHandler extends CommandInterface {
                     try {
                         slave = conn.getGlobalContext().getSlaveSelectionManager().getASlave(
                                 conn, Transfer.TRANSFER_RECEIVING_UPLOAD, ts.getTransferFile());
-                        logger.debug("PASV Upload slave selected " + slave.getName());
+                        logger.debug("PASV Upload slave selected {}", slave.getName());
                         String index = SlaveManager.getBasicIssuer().issueListenToSlave(slave,
                                 ts.getSendFilesEncrypted(), ts.getSSLHandshakeClientMode());
-                        logger.debug("PASV Upload index calculated " + index);
+                        logger.debug("PASV Upload index calculated {}", index);
                         ci = slave.fetchTransferResponseFromIndex(index);
-                        logger.debug("PASV Upload fetch connection info " + ci.toString());
+                        logger.debug("PASV Upload fetch connection info {}", ci.toString());
                         ts.setTransfer(slave.getTransfer(ci.getTransferIndex()));
                         logger.debug("PASV Upload transfer set to index");
                         address = new InetSocketAddress(slave.getPASVIP(), ts.getAddress().getPort());
-                        logger.debug("PASV Upload address selected " + address.getHostString());
+                        logger.debug("PASV Upload address selected {}", address.getHostString());
                     } catch (NoAvailableSlaveException e) {
                         logger.error("PASV Upload NoAvailableSlaveException", e);
                         reset(conn);
@@ -271,13 +272,13 @@ public class DataConnectionHandler extends CommandInterface {
             } else {
                 return StandardCommandManager.genericResponse("RESPONSE_502_COMMAND_NOT_IMPLEMENTED");
             }
-            logger.debug("PASV setTransferSlave " + slave.getName());
+            logger.debug("PASV setTransferSlave {}", slave.getName());
             ts.setTransferSlave(slave);
         }
 
         logger.debug("PASV getting remote slave");
         RemoteSlave transferSlave = ts.getTransferSlave();
-        logger.debug("PASV/CPSV finding " + (ts.isLocalPreTransfer() ? "master" : transferSlave.getName()));
+        logger.debug("PASV/CPSV finding {}", ts.isLocalPreTransfer() ? "master" : transferSlave.getName());
         if (conn.getRequest().getCommand().equals("CPSV")) {
             // can only reset it if the transfer was setup with CPSV
             ts.setSSLHandshakeClientMode(false);
@@ -589,7 +590,7 @@ public class DataConnectionHandler extends CommandInterface {
     }
 
     /**
-     * <code>STRU &lt;SP&gt; &lt;structure-code&gt; &lt;CRLF&gt;</code><br>
+     * {@code STRU <SP> <structure-code> <CRLF>}<br>
      * <p>
      * The argument is a single Telnet character code specifying file structure.
      */
@@ -608,7 +609,7 @@ public class DataConnectionHandler extends CommandInterface {
     }
 
     /**
-     * <code>SYST &lt;CRLF&gt;</code><br>
+     * {@code SYST <CRLF>}<br>
      * <p>
      * This command is used to find out the type of operating system at the
      * server.
@@ -627,7 +628,7 @@ public class DataConnectionHandler extends CommandInterface {
     }
 
     /**
-     * <code>TYPE &lt;SP&gt; &lt;type-code&gt; &lt;CRLF&gt;</code><br>
+     * {@code TYPE <SP> <type-code> <CRLF>}<br>
      * <p>
      * The argument specifies the representation type.
      */
@@ -682,7 +683,7 @@ public class DataConnectionHandler extends CommandInterface {
     }
 
     /**
-     * <code>STOU &lt;CRLF&gt;</code><br>
+     * {@code STOU <CRLF>}<br>
      *
      * This command behaves like STOR except that the resultant file is to be
      * created in the current directory under a name unique to that directory.
@@ -730,7 +731,7 @@ public class DataConnectionHandler extends CommandInterface {
      */
 
     /**
-     * <code>RETR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
+     * {@code RETR <SP> <pathname> <CRLF>}<br>
      * <p>
      * This command causes the server-DTP to transfer a copy of the file,
      * specified in the pathname, to the server- or user-DTP at the other end of
@@ -739,7 +740,7 @@ public class DataConnectionHandler extends CommandInterface {
      * <p>
      * RETR 125, 150 (110) 226, 250 425, 426, 451 450, 550 500, 501, 421, 530
      * <p>
-     * <code>STOR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
+     * {@code STOR <SP> <pathname> <CRLF>}<br>
      * <p>
      * This command causes the server-DTP to accept the data transferred via the
      * data connection and to store the data as a file at the server site. If

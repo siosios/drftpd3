@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.config;
 
@@ -43,7 +43,7 @@ import java.net.InetAddress;
 import java.util.*;
 
 /**
- * Handles the loading of 'master.conf' and 'conf/perms.conf'<br>
+ * Handles the loading of 'config/master.conf' and 'config/perms.conf'<br>
  * The directives that are going to be handled by this class are loaded during
  * the startup process and *MUST* be an extension of the master extension-point "ConfigHandler".<br>
  * No hard coding is needed to handle new directives, simply create a new extension.
@@ -56,10 +56,8 @@ public class ConfigManager implements ConfigInterface {
     private static final File permsFile = ConfigLoader.loadConfigFile("perms.conf", false);
     private static final String masterConfigFile = "master.conf";
 
-    private static final Key<Hashtable<String, ArrayList<PathPermission>>> PATHPERMS
-            = new Key<>(ConfigManager.class, "pathPerms");
-    private static final Key<Hashtable<String, Permission>> PERMS
-            = new Key<>(ConfigManager.class, "perms");
+    private static final Key<Hashtable<String, ArrayList<PathPermission>>> PATHPERMS = new Key<>(ConfigManager.class, "pathPerms");
+    private static final Key<Hashtable<String, Permission>> PERMS = new Key<>(ConfigManager.class, "perms");
 
     private String hideInStats = "";
 
@@ -121,17 +119,16 @@ public class ConfigManager implements ConfigInterface {
      * Load all connected handlers.
      */
     private void loadConfigHandlers() {
-        _directivesMap = new HashMap<>();
+        HashMap<String, ConfigContainer> directivesMap = new HashMap<>();
 
-        Set<Class<? extends ExtendedPermissions>> extendedPermissions = new Reflections("org.drftpd")
-                .getSubTypesOf(ExtendedPermissions.class);
+        Set<Class<? extends ExtendedPermissions>> extendedPermissions = new Reflections("org.drftpd").getSubTypesOf(ExtendedPermissions.class);
         try {
             for (Class<? extends ExtendedPermissions> extendedPermission : extendedPermissions) {
                 ExtendedPermissions perms = extendedPermission.getConstructor().newInstance();
                 for (PermissionDefinition permission : perms.permissions()) {
                     Class<? extends ConfigHandler> handler = permission.getHandler();
                     String directive = permission.getDirective();
-                    if (_directivesMap.containsKey(directive)) {
+                    if (directivesMap.containsKey(directive)) {
                         logger.debug("A handler for {} already loaded, check your plugin.xml's", directive);
                         continue;
                     }
@@ -139,13 +136,16 @@ public class ConfigManager implements ConfigInterface {
                     ConfigHandler handlerInstance = handler.getConstructor().newInstance();
                     Method methodInstance = handler.getMethod(method, String.class, StringTokenizer.class);
                     ConfigContainer cc = new ConfigContainer(handlerInstance, methodInstance);
-                    _directivesMap.put(directive, cc);
+                    directivesMap.put(directive, cc);
+                    logger.debug("Added directive {} to our directives map", directive);
                 }
             }
+            // Finally set the map once we processed all of the classes
+            _directivesMap = directivesMap;
         } catch (Exception e) {
-            logger.error("Failed to load plugins for master extension point 'Directive', possibly the master"
-                    + " extension point definition has changed in the plugin.xml", e);
+            logger.error("Failed to load plugins for master extension point 'ExtendedPermissions. The map is left as is or empty", e);
         }
+        logger.debug("Loaded {} ExtendedPermissions classes", _directivesMap.size());
     }
 
     /**
@@ -258,7 +258,7 @@ public class ConfigManager implements ConfigInterface {
     }
 
     /**
-     * Reads 'conf/perms.conf' handling what can be handled, ignoring what's does not have an available handler.
+     * Reads 'config/perms.conf' handling what can be handled, ignoring what's does not have an available handler.
      */
     private void readConf() {
         LineNumberReader in = null;
@@ -328,7 +328,7 @@ public class ConfigManager implements ConfigInterface {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             }
         }

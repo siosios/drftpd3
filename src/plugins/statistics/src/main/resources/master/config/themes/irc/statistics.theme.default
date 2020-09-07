@@ -1,4 +1,3 @@
-# $Id$
 alup.header=
 alup=[${pos,2}] ${user,-12} ${tagline,-24} ${upfiles,5} ${upbytes,11} ${uprate,8}
 alup.footer=
@@ -30,3 +29,7 @@ dayup.footer=
 daydn.header=
 daydn=[${pos,2}] ${user,-12} ${tagline,-24} ${dnfilesday,5} ${dnbytesday,11} ${dnrateday,8}
 daydn.footer=
+
+morestats.grpstats=[${pos,2}] ${grp,-12} ${files,-24} ${megs,9}
+
+morestats.trafficstats=${stat} ${average} ${megs} ${files}

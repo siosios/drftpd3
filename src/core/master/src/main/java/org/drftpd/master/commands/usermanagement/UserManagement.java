@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.commands.usermanagement;
 
@@ -51,10 +52,10 @@ public class UserManagement {
 
     public static final Key<Date> LASTSEEN = new Key<>(UserManagement.class, "lastseen");
 
-    public static final Key<Long> WKLY_ALLOTMENT = new Key<>(UserManagement.class, "wkly_allotment");
+    public static final Key<Long> WKLYALLOTMENT = new Key<>(UserManagement.class, "wkly_allotment");
 
-    public static final Key<Date> BAN_TIME = new Key<>(UserManagement.class, "ban_time");
+    public static final Key<Date> BANTIME = new Key<>(UserManagement.class, "ban_time");
 
-    public static final Key<String> BAN_REASON = new Key<>(UserManagement.class, "ban_reason");
+    public static final Key<String> BANREASON = new Key<>(UserManagement.class, "banreason");
 
 }

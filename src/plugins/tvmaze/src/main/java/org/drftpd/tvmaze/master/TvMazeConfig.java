@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,25 +13,28 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.tvmaze.master;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.bushe.swing.event.annotation.AnnotationProcessor;
 import org.bushe.swing.event.annotation.EventSubscriber;
+
 import org.drftpd.common.util.ConfigLoader;
 import org.drftpd.master.GlobalContext;
 import org.drftpd.master.event.ReloadEvent;
 import org.drftpd.master.sections.SectionInterface;
 import org.drftpd.master.vfs.DirectoryHandle;
 import org.drftpd.master.vfs.event.VirtualFileSystemInodeCreatedEvent;
-import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import java.time.ZoneId;
 
 /**
  * @author scitz0
@@ -44,7 +47,7 @@ public class TvMazeConfig {
     private final ArrayList<SectionInterface> _sSDSections = new ArrayList<>();
     private final ArrayList<String> _filters = new ArrayList<>();
     private String _date, _time, _exclude;
-    private DateTimeZone _dtz;
+    private ZoneId _dtz;
     private int _startDelay, _endDelay;
     private boolean _bar_enabled, _bar_directory, _sRelease;
 
@@ -75,7 +78,7 @@ public class TvMazeConfig {
         }
         _date = cfg.getProperty("date.show", "yyyy-MM-dd");
         _time = cfg.getProperty("time.show", "EEEE, HH:mm");
-        _dtz = cfg.getProperty("timezone") == null ? DateTimeZone.getDefault() : DateTimeZone.forID(cfg.getProperty("timezone"));
+        _dtz = cfg.getProperty("timezone") == null ? ZoneId.systemDefault() : ZoneId.of(cfg.getProperty("timezone"));
         _exclude = cfg.getProperty("exclude", "");
         addSectionsFromConf(cfg, "race.section.", _rSections);
         addSectionsFromConf(cfg, "search.sd.section.", _sSDSections);
@@ -132,7 +135,7 @@ public class TvMazeConfig {
         return _time;
     }
 
-    public DateTimeZone getTimezone() {
+    public ZoneId getTimezone() {
         return _dtz;
     }
 
@@ -174,7 +177,7 @@ public class TvMazeConfig {
      * Method called whenever an inode is created.
      * Spawns a {@link TvMazeThread} if all criteria are met to not stall running thread
      * while getting the info from TvMaze.
-     * Depends on {@link VirtualFileSystemInodeCreatedEvent} <code>type</code> property.
+     * Depends on {@link VirtualFileSystemInodeCreatedEvent} {@code type} property.
      *
      * @param event The event
      */

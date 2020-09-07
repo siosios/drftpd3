@@ -1,35 +1,34 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.usermanager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bushe.swing.event.annotation.AnnotationProcessor;
-import org.bushe.swing.event.annotation.EventSubscriber;
 import org.drftpd.common.dynamicdata.KeyNotFoundException;
 import org.drftpd.common.exceptions.DuplicateElementException;
 import org.drftpd.common.io.PermissionDeniedException;
 import org.drftpd.master.GlobalContext;
-import org.drftpd.master.commands.usermanagement.GroupManagement;
 import org.drftpd.master.commands.usermanagement.UserManagement;
 import org.drftpd.slave.exceptions.FileExistsException;
+import org.reflections.Reflections;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.*;
 
@@ -41,14 +40,15 @@ import java.util.*;
  * @version $Id$
  */
 public abstract class AbstractUserManager implements UserManager {
+
     private static final Logger logger = LogManager.getLogger(AbstractUserManager.class);
 
     protected HashMap<String, SoftReference<User>> _users;
     protected HashMap<String, SoftReference<Group>> _groups;
 
-    private final ArrayList<UserResetHookInterface> _preResetHooks = new ArrayList<>();
+    private ArrayList<UserResetPreHookInterface> _preResetHooks = new ArrayList<>();
 
-    private final ArrayList<UserResetHookInterface> _postResetHooks = new ArrayList<>();
+    private ArrayList<UserResetPostHookInterface> _postResetHooks = new ArrayList<>();
 
     public static GlobalContext getGlobalContext() {
         return GlobalContext.getGlobalContext();
@@ -78,11 +78,11 @@ public abstract class AbstractUserManager implements UserManager {
         // user.getKeyedMap().setObject(Statistics.LOGINS,0);
         user.getKeyedMap().setObject(UserManagement.CREATED, new Date());
         user.getKeyedMap().setObject(UserManagement.LASTSEEN, new Date());
-        user.getKeyedMap().setObject(UserManagement.WKLY_ALLOTMENT, 0L);
+        user.getKeyedMap().setObject(UserManagement.WKLYALLOTMENT, 0L);
         user.getKeyedMap().setObject(UserManagement.COMMENT, "Auto-Generated");
         user.getKeyedMap().setObject(UserManagement.IRCIDENT, "");
         user.getKeyedMap().setObject(UserManagement.TAGLINE, "drftpd");
-        user.getKeyedMap().setObject(UserManagement.BAN_TIME, new Date());
+        user.getKeyedMap().setObject(UserManagement.BANTIME, new Date());
         // user.getKeyedMap().setObject(Nuke.NUKED,0);
         // user.getKeyedMap().setObject(Nuke.NUKEDBYTES,new Long(0));
 
@@ -109,9 +109,6 @@ public abstract class AbstractUserManager implements UserManager {
             getUserByName(username);
             // bad, .json file already exists.
             throw new FileExistsException("User " + username + " already exists");
-        } catch (IOException e) {
-            // bad, some I/O error ocurred.
-            throw new UserFileException(e);
         } catch (NoSuchUserException e) {
             // good, no such user was found. create it!
         }
@@ -127,9 +124,6 @@ public abstract class AbstractUserManager implements UserManager {
             getGroupByName(groupname);
             // bad, .json file already exists.
             throw new FileExistsException("Group " + groupname + " already exists");
-        } catch (IOException e) {
-            // bad, some I/O error ocurred.
-            throw new GroupFileException(e);
         } catch (NoSuchGroupException e) {
             // good, no such group was found. create it!
         }
@@ -226,7 +220,7 @@ public abstract class AbstractUserManager implements UserManager {
         if (groups_admin.size() == 1) {
             return groups_admin.get(0);
         }
-        logger.debug("[getGroupByGroupAdminOfUser] We were unable to find a match between [user:" + requestedUser.getName() + "]'s groups and [user:" + groupadminUser.getName() + "] as group admin. Groups found are: [" + groups_admin.size() + "]");
+        logger.debug("[getGroupByGroupAdminOfUser] We were unable to find a match between [user:{}]'s groups and [user:{}] as group admin. Groups found are: [{}]", requestedUser.getName(), groupadminUser.getName(), groups_admin.size());
         return null;
     }
 
@@ -302,8 +296,9 @@ public abstract class AbstractUserManager implements UserManager {
      * @see org.drftpd.master.cron.TimeEventInterface#resetDay(java.util.Date)
      */
     public void resetDay(Date d) {
+        logger.debug("in resetDay");
         // Run pre reset hooks
-        for (UserResetHookInterface preHook : _preResetHooks) {
+        for (UserResetPreHookInterface preHook : _preResetHooks) {
             preHook.resetDay(d);
         }
         for (User user : getAllUsers()) {
@@ -311,7 +306,7 @@ public abstract class AbstractUserManager implements UserManager {
             user.commit();
         }
         // Run post reset hooks
-        for (UserResetHookInterface postHook : _postResetHooks) {
+        for (UserResetPostHookInterface postHook : _postResetHooks) {
             postHook.resetDay(d);
         }
     }
@@ -322,8 +317,9 @@ public abstract class AbstractUserManager implements UserManager {
      * @see org.drftpd.master.cron.TimeEventInterface#resetHour(java.util.Date)
      */
     public void resetHour(Date d) {
+        logger.debug("in resetHour");
         // Run pre reset hooks
-        for (UserResetHookInterface preHook : _preResetHooks) {
+        for (UserResetPreHookInterface preHook : _preResetHooks) {
             preHook.resetHour(d);
         }
         for (User user : getAllUsers()) {
@@ -331,7 +327,7 @@ public abstract class AbstractUserManager implements UserManager {
             user.commit();
         }
         // Run post reset hooks
-        for (UserResetHookInterface postHook : _postResetHooks) {
+        for (UserResetPostHookInterface postHook : _postResetHooks) {
             postHook.resetHour(d);
         }
     }
@@ -342,8 +338,9 @@ public abstract class AbstractUserManager implements UserManager {
      * @see org.drftpd.master.cron.TimeEventInterface#resetMonth(java.util.Date)
      */
     public void resetMonth(Date d) {
+        logger.debug("in resetMonth");
         // Run pre reset hooks
-        for (UserResetHookInterface preHook : _preResetHooks) {
+        for (UserResetPreHookInterface preHook : _preResetHooks) {
             preHook.resetMonth(d);
         }
         for (User user : getAllUsers()) {
@@ -351,7 +348,7 @@ public abstract class AbstractUserManager implements UserManager {
             user.commit();
         }
         // Run post reset hooks
-        for (UserResetHookInterface postHook : _postResetHooks) {
+        for (UserResetPostHookInterface postHook : _postResetHooks) {
             postHook.resetMonth(d);
         }
     }
@@ -362,8 +359,9 @@ public abstract class AbstractUserManager implements UserManager {
      * @see org.drftpd.master.cron.TimeEventInterface#resetWeek(java.util.Date)
      */
     public void resetWeek(Date d) {
+        logger.debug("in resetWeek");
         // Run pre reset hooks
-        for (UserResetHookInterface preHook : _preResetHooks) {
+        for (UserResetPreHookInterface preHook : _preResetHooks) {
             preHook.resetWeek(d);
         }
         for (User user : getAllUsers()) {
@@ -371,7 +369,7 @@ public abstract class AbstractUserManager implements UserManager {
             user.commit();
         }
         // Run post reset hooks
-        for (UserResetHookInterface postHook : _postResetHooks) {
+        for (UserResetPostHookInterface postHook : _postResetHooks) {
             postHook.resetWeek(d);
         }
 
@@ -383,8 +381,9 @@ public abstract class AbstractUserManager implements UserManager {
      * @see org.drftpd.master.cron.TimeEventInterface#resetYear(java.util.Date)
      */
     public void resetYear(Date d) {
+        logger.debug("in resetYear");
         // Run pre reset hooks
-        for (UserResetHookInterface preHook : _preResetHooks) {
+        for (UserResetPreHookInterface preHook : _preResetHooks) {
             preHook.resetYear(d);
         }
         for (User user : getAllUsers()) {
@@ -392,13 +391,41 @@ public abstract class AbstractUserManager implements UserManager {
             user.commit();
         }
         // Run post reset hooks
-        for (UserResetHookInterface postHook : _postResetHooks) {
+        for (UserResetPostHookInterface postHook : _postResetHooks) {
             postHook.resetYear(d);
         }
     }
 
-    //TODO @k2r Decide what to do with abstract user manager
     private void loadResetHooks() {
-        // Load hooks to be run before the reset
+        // Deal with prehooks
+        ArrayList<UserResetPreHookInterface> prehooks = new ArrayList<>();
+        Set<Class<? extends UserResetPreHookInterface>> userresetprehooks = new Reflections("org.drftpd").getSubTypesOf(UserResetPreHookInterface.class);
+        try {
+            for (Class<? extends UserResetPreHookInterface> userresetprehook : userresetprehooks) {
+                UserResetPreHookInterface hook = userresetprehook.getConstructor().newInstance();
+                hook.init();
+                prehooks.add(hook);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to load plugins of UserResetPreHookInterface for UserManager", e);
+        }
+        logger.debug("Loaded [" + prehooks.size() + "] pre hooks for user reset");
+        _preResetHooks = prehooks;
+
+        // Deal with posthooks
+        ArrayList<UserResetPostHookInterface> posthooks = new ArrayList<>();
+        Set<Class<? extends UserResetPostHookInterface>> userresetposthooks = new Reflections("org.drftpd").getSubTypesOf(UserResetPostHookInterface.class);
+        try {
+            for (Class<? extends UserResetPostHookInterface> userresetposthook : userresetposthooks) {
+                UserResetPostHookInterface hook = userresetposthook.getConstructor().newInstance();
+                hook.init();
+                posthooks.add(hook);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to load plugins of UserResetPostHookInterface for UserManager", e);
+        }
+        logger.debug("Loaded [" + posthooks.size() + "] post hooks for user reset");
+        _postResetHooks = posthooks;
     }
+
 }

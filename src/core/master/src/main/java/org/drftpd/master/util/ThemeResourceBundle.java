@@ -1,3 +1,20 @@
+/*
+ * This file is part of DrFTPD, Distributed FTP Daemon.
+ *
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.drftpd.master.util;
 
 import org.apache.commons.collections4.IteratorUtils;
@@ -78,8 +95,7 @@ public class ThemeResourceBundle extends ResourceBundle {
         for (String key : keys) {
             ThemeBundle existBundle = combined.get(key);
             if (existBundle != null) {
-                logger.error("Theme key collision for key " + key
-                        + " [" + existBundle.getPath().toString() + " and " + themeFile.toString() + "]");
+                logger.error("Theme key collision for key {} [{} and {}]", key, existBundle.getPath().toString(), themeFile.toString());
             }
             combined.put(key, new ThemeBundle(themeFile, bundle));
         }
@@ -92,7 +108,7 @@ public class ThemeResourceBundle extends ResourceBundle {
         }
         ThemeBundle bundle = combined.get(key);
         if (bundle == null) {
-            logger.error("No theme file available for key " + key);
+            logger.error("No theme file available for key {}", key);
             return "No theme available";
         }
         return bundle.getBundle().handleGetObject(key);

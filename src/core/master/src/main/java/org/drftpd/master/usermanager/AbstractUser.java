@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.usermanager;
 
@@ -56,9 +57,16 @@ public abstract class AbstractUser extends User implements Commitable {
     private String _username;
 
     public AbstractUser(String username) {
+        checkValidUser(username);
         _username = username;
         _data.setObject(UserManagement.CREATED, new Date(System.currentTimeMillis()));
         _data.setObject(UserManagement.TAGLINE, "no tagline");
+    }
+
+    public static void checkValidUser(String user) {
+        if ((user.indexOf(' ') != -1) || (user.indexOf(';') != -1) || user.indexOf('!') != -1) {
+            throw new IllegalArgumentException("Users cannot contain illegal characters");
+        }
     }
 
     public void addAllMasks(HostMaskCollection hostMaskCollection) {
@@ -102,7 +110,7 @@ public abstract class AbstractUser extends User implements Commitable {
         try {
             g = getUserManager().getGroupByName(_group);
         } catch (NoSuchGroupException | GroupFileException e) {
-            logger.error("Unable to get group entity for group name " + _group);
+            logger.error("Unable to get group entity for group name {}", _group);
         }
         return g;
     }
@@ -117,7 +125,7 @@ public abstract class AbstractUser extends User implements Commitable {
             try {
                 groups.add(getUserManager().getGroupByName(group));
             } catch (NoSuchGroupException | GroupFileException e) {
-                logger.error("Unable to get group entity for group name " + group);
+                logger.error("Unable to get group entity for group name {}", group);
             }
         }
         return groups;
@@ -272,8 +280,8 @@ public abstract class AbstractUser extends User implements Commitable {
     public void resetWeek(Date resetDate) {
         GlobalContext.getEventService().publish(new UserEvent(this, "RESETWEEK", resetDate.getTime()));
         super.resetWeek(resetDate);
-        if (getKeyedMap().getObjectLong(UserManagement.WKLY_ALLOTMENT) > 0) {
-            setCredits(getKeyedMap().getObjectLong(UserManagement.WKLY_ALLOTMENT));
+        if (getKeyedMap().getObjectLong(UserManagement.WKLYALLOTMENT) > 0) {
+            setCredits(getKeyedMap().getObjectLong(UserManagement.WKLYALLOTMENT));
         }
         logger.info("Reset weekly stats for {}", getName());
     }

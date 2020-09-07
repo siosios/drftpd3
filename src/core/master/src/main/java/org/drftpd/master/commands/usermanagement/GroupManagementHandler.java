@@ -1,18 +1,19 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * DrFTPD is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * DrFTPD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * DrFTPD; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
- * Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License
+ * along with DrFTPD; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.master.commands.usermanagement;
 
@@ -97,6 +98,8 @@ public class GroupManagementHandler extends CommandInterface {
             newGroup.commit();
             response.addComment(session.jprintf(_bundle, "addgroup.success", env, request.getUser()));
 
+        } catch (IllegalArgumentException e) {
+            return new CommandResponse(500, e.getMessage());
         } catch (FileExistsException e) {
             return new CommandResponse(500, "Group already exists");
         } catch (GroupFileException e) {
@@ -366,9 +369,13 @@ public class GroupManagementHandler extends CommandInterface {
 
                         int groupSlots = Short.parseShort(commandArguments[0]);
 
-                        logger.info("'{}' changed group slots for '{}' from '{}' to '{}'", currentUser.getName(), groupToChange.getName(), groupToChange.getGroupSlots(), groupSlots);
+                        int leechSlots = Short.parseShort(commandArguments[0]);
+
+                        logger.info("'{}' changed group slots for '{}' from '{}' to '{}'", currentUser.getName(), groupToChange.getName(), groupToChange.getGroupSlots(), groupSlots, leechSlots);
                         groupToChange.setGroupSlots(groupSlots);
                         env.put("groupslots", "" + groupToChange.getGroupSlots());
+                        groupToChange.setLeechSlots(leechSlots);
+                        env.put("leechslots", "" + groupToChange.getLeechSlots());
                         response.addComment(session.jprintf(_bundle, "changegroup.slots.success", env, request.getUser()));
                     } catch (NumberFormatException ex) {
                         return StandardCommandManager.genericResponse("RESPONSE_501_SYNTAX_ERROR");
@@ -570,7 +577,7 @@ public class GroupManagementHandler extends CommandInterface {
                 env.put("fdn", "" + user.getDownloadedFiles());
                 env.put("mbdn", Bytes.formatBytes(user.getDownloadedBytes()));
                 env.put("ratio", "1:" + user.getKeyedMap().getObjectFloat(UserManagement.RATIO));
-                env.put("wkly", Bytes.formatBytes(user.getKeyedMap().getObjectLong(UserManagement.WKLY_ALLOTMENT)));
+                env.put("wkly", Bytes.formatBytes(user.getKeyedMap().getObjectLong(UserManagement.WKLYALLOTMENT)));
                 response.addComment(ReplacerUtils.jprintf(body, env));
             } catch (MissingResourceException e) {
                 response.addComment(e.getMessage());
@@ -596,6 +603,12 @@ public class GroupManagementHandler extends CommandInterface {
         env.put("slotsfree", g.getGroupSlots() - numUsers);
         env.put("leechtotal", g.getLeechSlots());
         env.put("leechfree", g.getLeechSlots() - numLeechUsers);
+        env.put("minratio", g.getMinRatio());
+        env.put("maxratio", g.getMaxRatio());
+        env.put("groupratio", g.getMinRatio()+"/"+g.getMaxRatio());
+        env.put("slots", g.getGroupSlots()+"/"+(g.getGroupSlots() - numUsers));
+        env.put("leechslots", g.getGroupSlots()+"/"+(g.getLeechSlots() - numLeechUsers));
+        env.put("created", new SimpleDateFormat("d MMM yyyy HH:mm:ss").format(g.getCreated()));
 
         String tail = _bundle.getString("ginfo.tail");
         try {

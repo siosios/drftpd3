@@ -1,10 +1,10 @@
 /*
  * This file is part of DrFTPD, Distributed FTP Daemon.
  *
- * DrFTPD is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * DrFTPD is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
  * DrFTPD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,17 +13,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DrFTPD; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.drftpd.tvmaze.master;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.http.HttpException;
+
+import org.apache.hc.core5.http.HttpException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.drftpd.master.util.HttpUtils;
+
 import org.drftpd.tvmaze.master.metadata.TvMazeInfo;
 
 import java.util.regex.Matcher;
@@ -36,8 +40,8 @@ public class TvMazeParser {
     private static final Logger logger = LogManager.getLogger(TvMazeParser.class);
 
     // TODO: make these configurable?
-    private static final String _searchUrl = "http://api.tvmaze.com/search/shows?q=";
-    private static final String _showUrl = "http://api.tvmaze.com/shows/";
+    private static final String _searchUrl = "https://api.tvmaze.com/search/shows?q=";
+    private static final String _showUrl = "https://api.tvmaze.com/shows/";
 
     // For Info / Dir
     private TvMazeInfo _TvShow;
