@@ -39,14 +39,14 @@ This is an advantage as it simplifies administration of the slaves.
 ## How to get started
 
 ### Requirements
-DrFTPD 4.0.0-beta1 installation requires a number of steps before you can utilize the software to its full extend.
+DrFTPD 4.0.0-beta2 installation requires a number of steps before you can utilize the software to its full extend.
 To give an overview of the installation process the different steps are listed below in this section.
 
 On the master you will need to:
-- Install Java JDK or OpenJDK 14 and Apache Maven
+- Install Java JDK or OpenJDK 15 and Apache Maven
 
 On the slaves you will need to:
-- Install Java SE or OpenJDK 14 
+- Install Java SE or OpenJDK 15 
 - Add needed deps that are not present :
   - MediaInfo (CLI): https://mediaarea.net/en/MediaInfo
   - mkvalidator tool: https://www.matroska.org/downloads/mkvalidator.html
