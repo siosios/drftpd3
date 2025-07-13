@@ -1,5 +1,5 @@
 #!/bin/sh
-# Absolute path to this script
+#  Absolute path to this script
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in
 SCRIPTPATH=$(dirname "$SCRIPT")
