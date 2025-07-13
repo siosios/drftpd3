@@ -5,7 +5,7 @@ on:
     tags:
       - 4.*
 #  github.ref_name is used for tagging the image, consider this if/when dispatching workflow manually
-#  workflow_dispatch:
+  workflow_dispatch:
   
 jobs:
 
