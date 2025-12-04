@@ -279,7 +279,7 @@ public class RemoteSlave extends ExtendedTimedStats implements Runnable, Compara
             throw new SlaveUnavailableException();
         }
         int throughputUp = 0;
-        int throughputDown = 0;
+        long throughputDown = 0;
         int transfersUp = 0;
         int transfersDown = 0;
         long bytesReceived;
