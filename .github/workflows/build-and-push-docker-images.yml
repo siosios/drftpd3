@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout drftpd
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4.1.7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4.1.7
         with:
           path: 'drftpd-source'
 
       - name: Checkout mkvalidator
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4.1.7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4.1.7
         with:
           repository: 'Matroska-Org/foundation-source'
           ref: '8221e51b2e43e077dfa06d7dab6f1cf5a5fb15bf'
